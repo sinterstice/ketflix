@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { sessionMiddleware, createSession, updateSession } from '../session';
+import argon2 from 'argon2';
+import { createSession, updateSession } from '../session';
+import { Users } from '../database';
 
 export const api = Router();
 
@@ -9,20 +11,32 @@ api.use((req, res, next) => {
 });
 
 api.post('/login', async (req, res) => {
-    if (typeof req.body.username !== 'string' ||
-        req.body.username.length < 1 ||
+    if (typeof req.body.email !== 'string' ||
+        req.body.email.length < 1 ||
         typeof req.body.password !== 'string' || 
         req.body.password.length < 1) {
 
         return res.status(400).json({ error: 'Invalid request' });
     }
 
-    const { username } = req.body;
+    const { email, password } = req.body;
 
-    const token = await createSession({ username, authenticated: true });
+    const user = await Users.get(email);
+
+    if (!user) {
+        return res.status(401).json({ error: 'No such user' });
+    }
+    
+    const { password: hashedPassword } = user;
+
+    if (!await argon2.verify(hashedPassword, password)) {
+        return res.status(401).json({ error: 'Passwords do not match' });
+    }
+
+    const token = await createSession({ email, authenticated: true });
     updateSession(token, res);
 
-    return res.status(200).json({ username });
+    return res.status(200).json({ email });
 });
 
 api.get('/session', (req, res) => {
@@ -30,11 +44,11 @@ api.get('/session', (req, res) => {
         return res.status(200).json({ authenticated: false });
     }
 
-    const { username, authenticated = false } = req.session;
+    const { email, authenticated = false } = req.session;
 
     return res.status(200).json({
         authenticated,
-        username
+        email
     });
 });
 

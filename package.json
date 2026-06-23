@@ -4,7 +4,7 @@
   "main": "backend/src/index.ts",
   "scripts": {
     "watch": "tsc --watch",
-    "backend": "node --watch build/index.js",
+    "backend": "node --env-file ./data/process.env --watch build/index.js",
     "dev:backend": "concurrently \"npm run watch\" \"npm run backend\"",
     "dev:frontend": "npm start --prefix ./frontend",
     "check-types": "tsc",
@@ -21,12 +21,12 @@
     "dotenv": "^16.6.1",
     "express": "^4.22.0",
     "express-async-handler": "^1.2.0",
-    "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^8.23.1",
     "morgan": "^1.11.0",
+    "nodemailer": "^9.0.1",
     "package-directory": "^8.2.0",
-    "package-up": "^5.0.0"
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
@@ -34,6 +34,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^20.19.9",
+    "@types/nodemailer": "^8.0.1",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
     "concurrently": "^8.2.2",

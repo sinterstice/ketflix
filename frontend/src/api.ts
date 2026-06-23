@@ -12,9 +12,15 @@ async function request(path: string, method: HttpMethod, body?: any) {
         }
     });
 
-    return result.json();
+    const json = await result.json();
+
+    if (result.ok) {
+        return json;
+    } else {
+        throw new Error(json.error);
+    }
 }
 
-export const login = async (username: string, password: string) => request('login', HttpMethod.POST, { username, password });
+export const login = async (email: string, password: string) => request('login', HttpMethod.POST, { email, password });
 
 export const session = async () => request('session', HttpMethod.GET);

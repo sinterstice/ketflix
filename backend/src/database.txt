@@ -1,0 +1,14 @@
+users table
+email           text
+password        text (null if not yet set)
+has_admin       boolean
+data_limit      integer (bytes)
+
+torrents table
+filename        text
+uploaded_by     text (email)
+uploaded_on     integer (epoch date)
+file_count      integer
+file_size       integer (bytes)
+library         text
+status          text

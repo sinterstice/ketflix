@@ -4,4 +4,4 @@ node_modules
 build
 frontend/build
 dist
-key.pem
+data

@@ -14,18 +14,18 @@ const JWT_OPTIONS = {
 let privateKey: string;
 
 export interface SessionData {
-    username?: string;
+    email?: string;
     authenticated: boolean;
 }
 
 const DEFAULT_SESSION = {
-    username: undefined,
+    email: undefined,
     authenticated: false
 }
 
 export async function createSession(sessionData: SessionData = DEFAULT_SESSION): Promise<string> {
     if (!privateKey) {
-        privateKey = await readFile(path.join(repoRoot, 'key.pem'), 'utf8');
+        privateKey = await readFile(path.join(repoRoot, 'data/key.pem'), 'utf8');
     }
 
     return new Promise((res, rej) => {
@@ -45,7 +45,7 @@ export const updateSession = (token: string, res: express.Response) => {
 
 export async function verifySession(token: string): Promise<SessionData> {
     if (!privateKey) {
-        privateKey = await readFile(path.join(repoRoot, 'key.pem'), 'utf8');
+        privateKey = await readFile(path.join(repoRoot, 'data/key.pem'), 'utf8');
     }
 
     return new Promise((res, rej) => {

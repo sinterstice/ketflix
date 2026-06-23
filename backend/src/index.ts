@@ -14,6 +14,14 @@ app.use(morgan('tiny'));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(sessionMiddleware());
+app.use((req, res, next) => {
+    try {
+        next();
+    } catch(err) {
+        console.error(`Internal Server Error: ${err}`);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(frontendBasePath, 'index.html'));
