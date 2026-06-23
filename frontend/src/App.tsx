@@ -7,8 +7,14 @@ interface SessionData {
     authenticated: boolean;
 }
 
+interface Self {
+    dataLimit: Number;
+    hasAdmin: boolean;
+}
+
 function App() {
     const [session, setSession] = useState<SessionData | null>(null);
+    const [self, setSelf] = useState<Self | null>(null);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [resetHash, setResetHash] = useState<string | null>();
@@ -66,12 +72,27 @@ function App() {
         setResetHash(passwordReset);
     }, [passwordReset]);
 
+    const fetchSelf = async () => {
+        setAlert(null);
+        const result = await api.getSelf();
+        setSelf(result);
+    };
+
+    useEffect(() => {
+        if (session?.authenticated && !self) {
+            fetchSelf();
+        }
+    }, [session]);
+
     return (
         <div className="main">
             {alert && <span className="alert">{alert}</span>}
             <div className="login">
                 {session?.authenticated ? (
-                    <span>Welcome, {session.email}!</span>
+                    <div>
+                        <span>Welcome, {session.email}!</span>
+                        {self && <span>{self.hasAdmin ? 'You are an admin' : 'You are not an admin'}</span>}
+                    </div>
                 ) : (
                     <form onSubmit={handleLogin}>
                         <input disabled={!session} placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>

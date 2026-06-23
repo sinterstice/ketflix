@@ -27,4 +27,6 @@ export const requestPasswordReset = async (email: string) => request('create-pas
 
 export const resetPassword = async (email: string, password: string, nonce: string) => request('reset-password', HttpMethod.POST, { email, password, nonce });
 
+export const getSelf = async () => request('self', HttpMethod.GET);
+
 export const session = async () => request('session', HttpMethod.GET);

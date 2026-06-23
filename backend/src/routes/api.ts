@@ -5,7 +5,7 @@ import { createSession, updateSession } from '../session';
 import { Users, Nonces } from '../database';
 import { baseUrl } from '../variables';
 import { sendMail } from '../email';
-import { catchAsync } from '../util';
+import { assert, catchAsync } from '../util';
 
 export const api = Router();
 
@@ -112,6 +112,27 @@ api.post('/reset-password', catchAsync(async (req, res) => {
 
     return res.json({ ok: true, email });
 }));
+
+const checkAuthenticated = async (req: Express.Request, res: Express.Response, next: Express.NextFunction) => {
+    if (!req.session?.authenticated) {
+        return res.status(401).json({ error: 'Requires authentication' });
+    }
+
+    next();
+}
+
+api.get('/self', checkAuthenticated, async (req, res) => {
+    const email = req.session?.email;
+    assert(typeof email === 'string');
+
+    const { has_admin, data_limit } = await Users.get(email);
+
+    return res.json({ 
+        email,
+        hasAdmin: has_admin,
+        dataLimit: data_limit
+    });
+});
 
 api.all('*', (req, res) => {
     res.status(404).json({ error: 'Not found' });
