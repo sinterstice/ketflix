@@ -23,4 +23,8 @@ async function request(path: string, method: HttpMethod, body?: any) {
 
 export const login = async (email: string, password: string) => request('login', HttpMethod.POST, { email, password });
 
+export const requestPasswordReset = async (email: string) => request('create-password-reset', HttpMethod.POST, { email });
+
+export const resetPassword = async (email: string, password: string, nonce: string) => request('reset-password', HttpMethod.POST, { email, password, nonce });
+
 export const session = async () => request('session', HttpMethod.GET);

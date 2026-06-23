@@ -12,3 +12,10 @@ file_count      integer
 file_size       integer (bytes)
 library         text
 status          text
+
+nonce table
+hash            text
+user            text
+purpose         text
+consumed        boolean
+expires         datetime

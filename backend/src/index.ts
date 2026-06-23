@@ -1,4 +1,5 @@
 import express from 'express';
+import type { Response, Request } from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';

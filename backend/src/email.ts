@@ -1,14 +1,39 @@
 import nodemailer from 'nodemailer';
 
+export const EMAIL = 'admin@kayfab.me';
+
 const transport = nodemailer.createTransport({
     port: 587,
     host: "smtp.protonmail.ch",
     auth: {
-        user: 'admin@kayfab.me',
+        user: EMAIL,
         pass: process.env.SMTP_KEY,
     },
-    secure: true, // upgrades later with STARTTLS -- change this based on the PORT
+    tls: {
+        ciphers:'SSLv3'
+    }
 });
 
-export const sendMail = async () => {
+export interface MailOptions {
+    email: string;
+    subject: string;
+    body: string;
+}
+
+export const sendMail = async (options: MailOptions) => {
+    console.log('Sending email', options.email, options.subject);
+    return new Promise((res, rej) => {
+        transport.sendMail({
+            from: EMAIL,
+            to: options.email,
+            subject: options.subject,
+            text: options.body
+        }, (error, info) => {
+            if (error) {
+                rej(error);
+            } else {
+                res(info)
+            }
+        });
+    });
 };
