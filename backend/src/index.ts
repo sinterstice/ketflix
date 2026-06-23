@@ -1,17 +1,25 @@
 import express from 'express';
 import path from 'path';
-import { packageDirectorySync as pkgDir } from 'package-directory';
-import { assert } from './util';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 import { fileExists } from './fs';
+import { port, repoRoot, frontendBasePath } from './variables';
+import { sessionMiddleware } from './session';
+import { api } from './routes/api';
 
 const app = express();
-const port = process.env.PORT || 3000;
-const repoRoot = pkgDir(); assert(typeof repoRoot === 'string');
-const frontendBasePath = path.join(repoRoot, 'frontend/build');
+
+app.use(morgan('tiny'));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(sessionMiddleware());
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(frontendBasePath, 'index.html'));
 });
+
+app.use('/api', api);
 
 app.get('*', async (req, res) => {
     const filePath = path.join(frontendBasePath, req.path);

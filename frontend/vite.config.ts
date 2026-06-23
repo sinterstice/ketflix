@@ -8,9 +8,9 @@ import svgrPlugin from "vite-plugin-svgr";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: 3000,
+    port: 3001,
     proxy: {
-      "/api": "Enter your backend host with port inside the quotes",
+      "/api": "http://localhost:3000",
     },
   },
   plugins: [
