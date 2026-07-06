@@ -1,0 +1,38 @@
+services:
+    #later
+    #ketflix:
+    #  build: .
+    #  ports:
+    #    - "${APP_PORT}:3000"
+    #  environment:
+    #    - SMTP_KEY=${SMTP_KEY}
+    #      IPTORRENTS_USER=${IPTORRENTS_USER}
+    #      IPTORRENTS_PASS=${IPTORRENTS_PASS}
+
+  plex:
+    image: plexinc/pms-docker
+    volumes:
+      - type: volume
+        source: raid
+        target: /config
+        volume:
+            subpath: /media_server/config
+      - type: volume
+        source: raid
+        target: /data
+        volume:
+            subpath: /media_server/data
+      - type: volume
+        source: raid
+        target: /transcode
+        volume:
+            subpath: /media_server/transcode
+    environment:
+      - TZ="America/New_York"
+
+volumes:
+  raid:
+    driver_opts:
+      type: none
+      o: bind
+      device: /dev/sda4
