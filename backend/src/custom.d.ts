@@ -7,4 +7,12 @@ declare global {
             session?: SessionData | undefined
         }
     }
+
+    namespace NodeJS {
+        interface ProcessEnv {
+            SMTP_KEY: string;
+            IPTORRENTS_USER: string;
+            IPTORRENTS_PASS: string;
+        }
+    }
 }

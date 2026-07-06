@@ -1,3 +1,5 @@
+import { IPTSortOption } from '../../types/shared';
+
 enum HttpMethod {
     GET = 'GET',
     POST = 'POST'
@@ -29,4 +31,6 @@ export const resetPassword = async (email: string, password: string, nonce: stri
 
 export const getSelf = async () => request('self', HttpMethod.GET);
 
-export const session = async () => request('session', HttpMethod.GET);
+export const getSession = async () => request('session', HttpMethod.GET);
+
+export const searchTracker = async (search: string, sort?: IPTSortOption, offset?: number) => request('search-tracker', HttpMethod.POST, { search, sort, offset }); 

@@ -5,6 +5,7 @@ import { createSession, updateSession } from '../session';
 import { Users, Nonces } from '../database';
 import { baseUrl } from '../variables';
 import { sendMail } from '../email';
+import { searchTracker, BrowserError } from '../browser';
 import { assert, catchAsync } from '../util';
 
 export const api = Router();
@@ -121,7 +122,7 @@ const checkAuthenticated = async (req: Express.Request, res: Express.Response, n
     next();
 }
 
-api.get('/self', checkAuthenticated, async (req, res) => {
+api.get('/self', checkAuthenticated, catchAsync(async (req, res) => {
     const email = req.session?.email;
     assert(typeof email === 'string');
 
@@ -132,7 +133,26 @@ api.get('/self', checkAuthenticated, async (req, res) => {
         hasAdmin: has_admin,
         dataLimit: data_limit
     });
-});
+}));
+
+api.post('/search-tracker', checkAuthenticated, catchAsync(async (req, res) => {
+    const { search, sort, offset } = req.body;
+
+    try {
+        const result = await searchTracker(search, sort, (offset || 0) + 1);
+
+        return res.json(result);
+    } catch(err) {
+        if (err instanceof BrowserError) {
+            console.error(`PUPPETEER ERROR: ${err.message}`);
+            console.error(`PUPPETEER ERROR: ${err.url}`);
+            console.error(`PUPPETEER ERROR: ${err.consoleLog}`);
+        }
+        
+        return res.status(500).json({ error: (err as Error).message });
+    }
+
+}));
 
 api.all('*', (req, res) => {
     res.status(404).json({ error: 'Not found' });

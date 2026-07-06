@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
+import { IPTSortOption, IPTResult } from '../../types/shared';
 
 import * as api from './api';
 
@@ -19,17 +20,20 @@ function App() {
     const [password, setPassword] = useState<string>('');
     const [resetHash, setResetHash] = useState<string | null>();
     const [alert, setAlert] = useState<string | null>(null);
+    const [trackerLoading, setTrackerLoading ] = useState<boolean>(false);
+    const [trackerSearch, setTrackerSearch] = useState<string>('');
+    const [trackerOffset, setTrackerOffset] = useState<number>(0);
 
     const search = new URLSearchParams(location.search);
     const passwordReset = search.get('passwordReset');
 
     const fetchSession = async () => {
         setAlert(null);
-        const result = await api.session();
+        const result = await api.getSession();
         setSession(result);
     };
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
         setAlert(null);
         setSession(null);
@@ -54,13 +58,27 @@ function App() {
         fetchSession();
     }
 
-    const handlePasswordReset = async (e) => {
+    const handlePasswordReset = async (e: FormEvent) => {
         e.preventDefault();
         try {
             const result = await api.requestPasswordReset(email)
             setAlert('Password reset email sent');
         } catch(err) {
             setAlert((err as Error).message);
+        }
+    };
+
+    const handleSearchTracker = async (e: FormEvent) => {
+        e.preventDefault();
+        setTrackerLoading(true);
+
+        try {
+            const result = await api.searchTracker(trackerSearch, undefined, trackerOffset) as { pageCount: number; results: IPTResult };
+            console.log(result);
+        } catch(err) {
+            setAlert((err as Error).message);
+        } finally {
+            setTrackerLoading(false);
         }
     };
 
@@ -101,6 +119,13 @@ function App() {
                         <button disabled={!session} onClick={handlePasswordReset}>Forgot password</button>
                     </form>
                 )}
+            </div>
+
+            <div className="tracker">
+                <form onSubmit={handleSearchTracker}>
+                    <input placeholder="Search for a torrent" value={trackerSearch} onChange={(e) => setTrackerSearch(e.target.value)}/>
+                </form>
+                {trackerLoading ? (<span>Loading...</span>) : null}
             </div>
         </div>
     );
