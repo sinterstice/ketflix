@@ -1,22 +1,52 @@
 services:
-    #later
-    #ketflix:
-    #  build: .
-    #  ports:
-    #    - "${APP_PORT}:3000"
-    #  environment:
-    #    - SMTP_KEY=${SMTP_KEY}
-    #      IPTORRENTS_USER=${IPTORRENTS_USER}
-    #      IPTORRENTS_PASS=${IPTORRENTS_PASS}
-
   plex:
     container_name: plex
     image: plexinc/pms-docker
     restart: unless-stopped
     network_mode: host
     volumes:
-      - /mnt/storage/media_server/config:/config:z,U
-      - /mnt/storage/media_server/transcode:/transcode:z,U
-      - /mnt/storage/media_server/data:/data:z,U
+      - media_server_config:/config:z,U
+      - media_server_transcode:/transcode:z,U
+      - media_server_data:/data:z,U
     environment:
       - TZ="America/New_York"
+  
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  qbittorrent:
+    image: linuxserver/qbittorrent
+    environment:
+      - PUID=1002
+      - PGID=1002
+      - TZ=America/New_York
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - bittorrent_config:/config
+      - media_server_data:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+
+  backend:
+    build:
+      .
+    ports:
+      - 3000:3000
+    depends_on:
+      - qbittorrent
+      - plex
+      - postgres
+
+volumes:
+  media_server_data:
+  media_server_transcode:
+  media_server_config:
+  bittorrent_config:

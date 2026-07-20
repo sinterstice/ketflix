@@ -4,7 +4,7 @@
   "main": "backend/src/index.ts",
   "scripts": {
     "watch": "tsc --watch",
-    "backend": "node --env-file ./data/process.env --watch build/backend/src/index.js",
+    "backend": "node --env-file ./.env --watch build/backend/src/index.js",
     "dev:backend": "concurrently \"npm run watch\" \"npm run backend\"",
     "dev:frontend": "npm start --prefix ./frontend",
     "check-types": "tsc",
@@ -44,5 +44,10 @@
     "prettier": "3.2.5",
     "typescript": "^5.9.3",
     "vite": "^8.0.16"
+  },
+  "allowScripts": {
+      "puppeteer": true,
+      "sqlite": true,
+      "argon2": true
   }
 }
