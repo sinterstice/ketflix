@@ -1,57 +1,62 @@
-import sqlite3 from 'sqlite3';
+import sql from './sql';
 import { v4 as uuidv4 } from 'uuid';
-import { open } from 'sqlite';
-import type { Database } from 'sqlite';
 import path from 'path';
 import { repoRoot } from './variables';
 
 const SEVEN_DAYS_MS = 60 * 60 * 24 * 7 * 1000;
 
-let database: Promise<Database<sqlite3.Database, sqlite3.Statement>> = open({
-    filename: path.join(repoRoot, '/data/ketflix.db'),
-    driver: sqlite3.cached.Database
-})
+interface UserSql {
+    email: string;
+    password: string;
+    has_admin: boolean
+    data_limit: number;
+}
+
 
 export class Users {
     static async list() {
-        const db = await database;
+        return  
     }
 
     static async get(email: string) {
-        const db = await database;
+        const result = await sql<UserSql[]>`SELECT email, password, has_admin, data_limit FROM users WHERE email = ${email}`;
 
-        return db.get("SELECT email, password, has_admin, data_limit FROM users WHERE email = ?", email);
+        if (!result[0]) {
+            throw new Error('User not found');
+        }
+
+        return result[0];
     }
 
     static async updatePassword(email: string, password: string) {
-        const db = await database;
-        return await db.run(`UPDATE users SET password = ? WHERE email = ?`, password, email);
+        return sql`UPDATE users SET password = ${password} WHERE email = ${email}`;
     }
 }
 
 export class Torrents {
     static async list() {
-        const db = await database;
     }
 
     static async get(filename: string) {
-        const db = await database;
-
     }
 
     static async getAllByUser(email: string) {
-        const db = await database;
-
     }
+}
+
+interface NonceSql {
+    hash: string;
+    user: string;
+    purpose: string;
+    consumed: boolean;
+    expires: Date;
 }
 
 export class Nonces {
     static async create(user: string, purpose: string, expires: Date = new Date(Date.now() + SEVEN_DAYS_MS)) {
-        const db = await database;
-
         const hash = uuidv4();
 
-        const result = await db.run(`INSERT INTO nonce(hash, user, purpose, consumed, expires) VALUES(?, ?, ?, FALSE, ?)`, hash, user, purpose, expires);
+        const result = await sql`INSERT INTO nonce(hash, user, purpose, consumed, expires) VALUES(${hash}, ${user}, ${purpose}, FALSE, ${expires}`;
 
         return {
             result,
@@ -60,23 +65,19 @@ export class Nonces {
     }
 
     static async get(hash: string, purpose: string) {
-        const db = await database;
-
-        return db.get(`SELECT user
+        const result = await sql<NonceSql[]>`SELECT user
           FROM nonce 
           WHERE 
-              hash = ? AND 
-              purpose = ? AND
+              hash = ${hash} AND 
+              purpose = ${purpose} AND
               consumed = FALSE AND 
               expires > unixepoch('now')
-          LIMIT 1
-          `, hash, purpose);
+          LIMIT 1`;
+
+        return result[0];
     }
 
     static async consume(hash: string) {
-        const db = await database;
-
-        return db.run(`UPDATE nonce SET consumed = TRUE WHERE hash = ?`, hash);
+        return sql`UPDATE nonce SET consumed = TRUE WHERE hash = ${hash}`;
     }
 }
-

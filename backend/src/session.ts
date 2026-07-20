@@ -1,17 +1,11 @@
 import express from 'express';
-import cookieParser from 'cookie-parser';
-import { readFile } from 'node:fs/promises';
 import jwt from 'jsonwebtoken'
-import path from 'path';
-import { repoRoot } from './variables';
 
 const JWT_COOKIE_NAME = 'JWT_TOKEN';
 
 const JWT_OPTIONS = {
     expiresIn: 60 * 60 * 24 * 30 // 30 days
 };
-
-let privateKey: string;
 
 export interface SessionData {
     email?: string;
@@ -24,12 +18,11 @@ const DEFAULT_SESSION = {
 }
 
 export async function createSession(sessionData: SessionData = DEFAULT_SESSION): Promise<string> {
-    if (!privateKey) {
-        privateKey = await readFile(path.join(repoRoot, 'data/key.pem'), 'utf8');
-    }
+
+    console.log(JSON.stringify(process.env));
 
     return new Promise((res, rej) => {
-        jwt.sign(sessionData, privateKey, JWT_OPTIONS, (err, token) => {
+        jwt.sign(sessionData, process.env.JWT_SECRET, JWT_OPTIONS, (err, token) => {
             if (err) {
                 rej(err);
             } else {
@@ -37,6 +30,7 @@ export async function createSession(sessionData: SessionData = DEFAULT_SESSION):
             }
         });
     });
+
 }
 
 export const updateSession = (token: string, res: express.Response) => {
@@ -44,12 +38,8 @@ export const updateSession = (token: string, res: express.Response) => {
 }
 
 export async function verifySession(token: string): Promise<SessionData> {
-    if (!privateKey) {
-        privateKey = await readFile(path.join(repoRoot, 'data/key.pem'), 'utf8');
-    }
-
     return new Promise((res, rej) => {
-        jwt.verify(token, privateKey, {}, (err, sessionData) => {
+        jwt.verify(token, process.env.JWT_SECRET, {}, (err, sessionData) => {
             if (err || !sessionData) {
                 rej(err);
             } else {

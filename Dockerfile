@@ -8,21 +8,8 @@ FROM node:26 AS development
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 
-ARG SMPT_KEY
-ARG QBITTORRENT_PASS
-ARG IPTORRENTS_USER
-ARG IPTORRENTS_PASS
-ARG POSTGRES_PASSWORD
-
-ENV SMTP_KEY $SMTP_KEY
-ENV QBITTORRENT_PASS $QBITTORRENT_PASS
-ENV IPTORRENTS_USER $IPTORRENTS_USER
-ENV IPTORRENTS_PASS $IPTORRENTS_PASS
-ENV POSTGRES_PASSWORD $POSTGRES_PASSWORD
-
 EXPOSE 3000 9229 9230
 
-# note that /build inside the container is unrelated to /build inside the project repo. The final entry file will be at /build/build/backend/index.js.
 COPY /package.json package.json
 COPY /package-lock.json package-lock.json
 COPY /tsconfig.json tsconfig.json

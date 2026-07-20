@@ -15,6 +15,10 @@ services:
     image: postgres
     restart: always
     shm_size: 128mb
+    user: 1002:1002
+    volumes:
+      - ./pg_init:/docker-entrypoint-initdb.d
+      - database:/var/lib/postgresql
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
@@ -38,15 +42,32 @@ services:
   backend:
     build:
       .
+    environment:
+      - SMTP_KEY=${SMTP_KEY}
+      - IPTORRENTS_USER=${IPTORRENTS_USER}
+      - IPTORRENTS_PASS=${IPTORRENTS_PASS}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - QBITTORRENT_PASS=${QBITTORRENT_PASS}
+      - JWT_SECRET=${JWT_SECRET}
     ports:
       - 3000:3000
     depends_on:
       - qbittorrent
       - plex
       - postgres
+    develop:
+      watch:
+        - path: ./build
+          action: sync+restart
+          target: /build
+        - path: ./node_modules
+          action: rebuild
+        - path: ./frontend/node_modules
+          action: rebuild
 
 volumes:
   media_server_data:
   media_server_transcode:
   media_server_config:
   bittorrent_config:
+  database:

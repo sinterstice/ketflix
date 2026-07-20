@@ -13,6 +13,9 @@ declare global {
             SMTP_KEY: string;
             IPTORRENTS_USER: string;
             IPTORRENTS_PASS: string;
+            POSTGRES_PASSWORD: string;
+            QBITTORRENT_PASS: string;
+            JWT_SECRET: string;
         }
     }
 }

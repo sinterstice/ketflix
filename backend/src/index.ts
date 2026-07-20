@@ -1,4 +1,6 @@
 import express from 'express';
+import prexit from 'prexit';
+import sql from './sql';
 import type { Response, Request } from 'express';
 import path from 'path';
 import morgan from 'morgan';
@@ -46,3 +48,7 @@ app.get('*', async (req, res) => {
 app.listen(port, () => {
     console.log('App started');
 });
+
+prexit(async () => {
+  await sql.end({ timeout: 5 })
+})

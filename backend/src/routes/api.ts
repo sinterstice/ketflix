@@ -63,6 +63,8 @@ api.get('/session', catchAsync((req, res) => {
         return res.status(200).json({ authenticated: false });
     }
 
+    console.log('wow does this work?');
+
     const { email, authenticated = false } = req.session;
 
     return res.status(200).json({
